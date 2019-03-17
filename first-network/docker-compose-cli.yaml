@@ -1,0 +1,94 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+volumes:
+  orderer.pmc.com:
+  peer0.doctororg1.pmc.com:
+  peer1.doctororg1.pmc.com:
+  peer0.patientorg1.pmc.com:
+  peer1.patientorg1.pmc.com:
+
+networks:
+  byfn:
+
+services:
+
+  orderer.pmc.com:
+    extends:
+      file:   base/docker-compose-base.yaml
+      service: orderer.pmc.com
+    container_name: orderer.pmc.com
+    networks:
+      - byfn
+
+  peer0.doctororg1.pmc.com:
+    container_name: peer0.doctororg1.pmc.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.doctororg1.pmc.com
+    networks:
+      - byfn
+
+  peer1.doctororg1.pmc.com:
+    container_name: peer1.doctororg1.pmc.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer1.doctororg1.pmc.com
+    networks:
+      - byfn
+
+  peer0.patientorg1.pmc.com:
+    container_name: peer0.patientorg1.pmc.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.patientorg1.pmc.com
+    networks:
+      - byfn
+
+  peer1.patientorg1.pmc.com:
+    container_name: peer1.patientorg1.pmc.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer1.patientorg1.pmc.com
+    networks:
+      - byfn
+
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools:$IMAGE_TAG
+    tty: true
+    stdin_open: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      # 나중에 INFO 로 바꿀 것
+      - FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=peer0.doctororg1.pmc.com:7051
+      - CORE_PEER_LOCALMSPID=DoctorOrg1MSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/doctororg1.pmc.com/peers/peer0.doctororg1.pmc.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/doctororg1.pmc.com/peers/peer0.doctororg1.pmc.com/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/doctororg1.pmc.com/peers/peer0.doctororg1.pmc.com/tls/ca.crt
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/doctororg1.pmc.com/users/Admin@doctororg1.pmc.com/msp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./../chaincode/:/opt/gopath/src/github.com/chaincode
+        - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+        - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+        - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+    depends_on:
+      - orderer.pmc.com
+      - peer0.doctororg1.pmc.com
+      - peer1.doctororg1.pmc.com
+      - peer0.patientorg1.pmc.com
+      - peer1.patientorg1.pmc.com
+    networks:
+      - byfn

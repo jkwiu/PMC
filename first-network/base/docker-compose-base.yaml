@@ -1,0 +1,128 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+services:
+
+  orderer.pmc.com:
+    container_name: orderer.pmc.com
+    image: hyperledger/fabric-orderer:$IMAGE_TAG
+    environment:
+      # 나중에 info로 변경
+      - FABRIC_LOGGING_SPEC=debug
+      # 나중에 삭제
+      - ORDERER_GENERAL_LOGLEVEL=debug
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=OrdererJKMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      # enabled TLS
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_KAFKA_TOPIC_REPLICATIONFACTOR=1
+      - ORDERER_KAFKA_VERBOSE=true
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    command: orderer
+    volumes:
+    - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+    - ../crypto-config/ordererOrganizations/pmc.com/orderers/orderer.pmc.com/msp:/var/hyperledger/orderer/msp
+    - ../crypto-config/ordererOrganizations/pmc.com/orderers/orderer.pmc.com/tls/:/var/hyperledger/orderer/tls
+    - orderer.pmc.com:/var/hyperledger/production/orderer
+    ports:
+      - 7050:7050
+
+  peer0.doctororg1.pmc.com:
+    container_name: peer0.doctororg1.pmc.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.doctororg1.pmc.com
+      - CORE_PEER_ADDRESS=peer0.doctororg1.pmc.com:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.doctororg1.pmc.com:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.doctororg1.pmc.com:8051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.doctororg1.pmc.com:7051
+      - CORE_PEER_LOCALMSPID=DoctorOrg1MSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/doctororg1.pmc.com/peers/peer0.doctororg1.pmc.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/doctororg1.pmc.com/peers/peer0.doctororg1.pmc.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.doctororg1.pmc.com:/var/hyperledger/production
+    ports:
+      - 7051:7051
+
+  peer1.doctororg1.pmc.com:
+    container_name: peer1.doctororg1.pmc.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.doctororg1.pmc.com
+      - CORE_PEER_ADDRESS=peer1.doctororg1.pmc.com:8051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.doctororg1.pmc.com:8052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.doctororg1.pmc.com:8051
+      # 앵커 피어의 포인트 또는 주소(앵커가 아닌 피어에 설정)
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.doctororg1.pmc.com:7051
+      - CORE_PEER_LOCALMSPID=DoctorOrg1MSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/doctororg1.pmc.com/peers/peer1.doctororg1.pmc.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/doctororg1.pmc.com/peers/peer1.doctororg1.pmc.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.doctororg1.pmc.com:/var/hyperledger/production
+
+    ports:
+      - 8051:8051
+
+  peer0.patientorg1.pmc.com:
+    container_name: peer0.patientorg1.pmc.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.patientorg1.pmc.com
+      - CORE_PEER_ADDRESS=peer0.patientorg1.pmc.com:9051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.patientorg1.pmc.com:9052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.patientorg1.pmc.com:9051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.patientorg1.pmc.com:10051
+      - CORE_PEER_LOCALMSPID=PatientOrg1MSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/patientorg1.pmc.com/peers/peer0.patientorg1.pmc.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/patientorg1.pmc.com/peers/peer0.patientorg1.pmc.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.patientorg1.pmc.com:/var/hyperledger/production
+    ports:
+      - 9051:9051
+
+  peer1.patientorg1.pmc.com:
+    container_name: peer1.patientorg1.pmc.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.patientorg1.pmc.com
+      - CORE_PEER_ADDRESS=peer1.patientorg1.pmc.com:10051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:10051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.patientorg1.pmc.com:10052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:10052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.patientorg1.pmc.com:10051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.patientorg1.pmc.com:9051
+      - CORE_PEER_LOCALMSPID=PatientOrg1MSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/patientorg1.pmc.com/peers/peer1.patientorg1.pmc.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/patientorg1.pmc.com/peers/peer1.patientorg1.pmc.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.patientorg1.pmc.com:/var/hyperledger/production
+    ports:
+      - 10051:10051

@@ -1,0 +1,90 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+volumes:
+  orderer.pmc.com:
+  peer0.doctororg1.pmc.com:
+  peer1.doctororg1.pmc.com:
+  peer0.patientorg1.pmc.com:
+  peer1.patientorg1.pmc.com:
+
+networks:
+  byfn:
+services:
+  ca0:
+    image: hyperledger/fabric-ca:$IMAGE_TAG
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-doctororg1
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.doctororg1.pmc.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CA1_PRIVATE_KEY
+    ports:
+      - "7054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.doctororg1.pmc.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA1_PRIVATE_KEY -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/doctororg1.pmc.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerDoctorOrg1
+    networks:
+      - byfn
+
+  ca1:
+    image: hyperledger/fabric-ca:$IMAGE_TAG
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-patientorg1
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.patientorg1.pmc.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CA2_PRIVATE_KEY
+    ports:
+      - "8054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.patientorg1.pmc.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA2_PRIVATE_KEY -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/patientorg1.pmc.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerPatientOrg1
+    networks:
+      - byfn
+
+  orderer.pmc.com:
+    extends:
+      file:   base/docker-compose-base.yaml
+      service: orderer.pmc.com
+    container_name: orderer.pmc.com
+    networks:
+      - byfn
+
+  peer0.doctororg1.pmc.com:
+    container_name: peer0.doctororg1.pmc.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.doctororg1.pmc.com
+    networks:
+      - byfn
+
+  peer1.doctororg1.pmc.com:
+    container_name: peer1.doctororg1.pmc.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer1.doctororg1.pmc.com
+    networks:
+      - byfn
+
+  peer0.patientorg1.pmc.com:
+    container_name: peer0.patientorg1.pmc.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.patientorg1.pmc.com
+    networks:
+      - byfn
+
+  peer1.patientorg1.pmc.com:
+    container_name: peer1.patientorg1.pmc.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer1.patientorg1.pmc.com
+    networks:
+      - byfn
