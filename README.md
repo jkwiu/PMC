@@ -8,7 +8,7 @@ Then, they know each other about their patient medical prescriptions.
 
 So, they can know which drug have side effect to their patient. The each medical information of patients is secure and fast
 
-on Hyperledger fabric.
+on Hyperledger fabric. Orderer type: solo, 1orderer, 2orgs, 2pers in each org
 
 If you have question, please don't hesitate to contact me.
 
