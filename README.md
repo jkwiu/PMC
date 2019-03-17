@@ -28,7 +28,7 @@ Now, then open 3 Terminal,
 
 Terminal1
 
-> cd cd $GOPATH/src/github.com/hyperledger/fabric-samples/chaincode-docker-devmode
+> cd $GOPATH/src/github.com/hyperledger/fabric-samples/chaincode-docker-devmode
 
 > docker-compose -f docker-compose-simple.yaml up
 
