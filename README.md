@@ -20,7 +20,7 @@ I made MSP, Chaincode.
 
 To launch this,
 
-You need Prerequisites, Hyperledger fabric, fabric-ca, fabric-samples, Golang.
+You need Prerequisites, Hyperledger fabric, fabric-ca, fabric-samples, Golang, Docker etc.
 
 1. Chaincode test
 
