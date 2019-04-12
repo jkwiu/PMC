@@ -2,7 +2,7 @@
 
 This is Blockchain Project made by Hyperledger fabric. Made by Jungkyu Choi.
 
-I made PMC for patients and docotrs to share information of Patient Medical Chart.
+I made PMC for patients and doctors to share information of Patient Medical Chart.
 
 Then, they know each other about their patient medical prescriptions.
 
@@ -56,7 +56,7 @@ Terminal3
 
 > peer chaincode invoke -n mycc -c '{"Args":["initChart"]}' -C myc
 
-Create new chart. Next type of Struct is MedicalChart. When you invoke args, these args put into world state. I made auto indexing chart Algorithm in pmc2.go. If you invoke "createChart", params input into chain network as key-value. By auto indexing chart Algorithm, the chart index is automatically counted(key:"CHART1","CHART2"..)
+Create new chart. Next type of Struct is MedicalChart. When you invoke args, these args put into world state. I made auto indexing chart Algorithm in pmc2.go. If you invoke "createChart", params is inputted into chain network as key-value. By auto indexing chart Algorithm, the chart index is automatically counted(key:"CHART1","CHART2"..)
 
 	type MedicalChart struct {
   		Name       string `json:"name"`       //환자 이름	  
