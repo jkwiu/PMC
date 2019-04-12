@@ -29,7 +29,7 @@
 # prepending $PWD/../bin to PATH to ensure we are picking up the correct binaries
 # this may be commented out to resolve installed version of tools if desired
 
-# 이 스크립트는 Jungkyu Choi에 의해 작성되었으며, 상업적 이용 및 무단 배포를 금합니다.
+# 이 스크립트는 Jungkyu Choi에 의해 작성되었으며, 마음껏 써주세요~
 # GitHub: https://github.com/sizzflyer
 
 export PATH=${PWD}/../bin:${PWD}:$PATH
